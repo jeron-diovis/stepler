@@ -1,6 +1,6 @@
 {
   "name": "stepler",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "readme": "README.md",
   "description": "Define iteration rules for certain data structure and compute next step value from input data.",
   "main": "build/stepler.js",
@@ -13,7 +13,7 @@
     "start": "npm test -- --watch",
     "clean": "rm -rf build",
     "build": "npm run clean && babel -d build stepler.js",
-    "prepublish": "npm test"
+    "prepublish": "npm run build && git add build && git ci -m 'upd. build file' && git push"
   },
   "keywords": [
     "iterator",
