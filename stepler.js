@@ -42,9 +42,13 @@ iterator.list = options => {
         val: data => {
             const val = options.val(data);
             return findIndex(val, options.list(data), options.match);
-        }
+        },
+        format: null // don't format intermediate value (i.e. index)
     });
-    return data => options.list(data)[next(data)];
+    return data => {
+        const res = options.list(data)[next(data)];
+        return options.format ? options.format(res, data) : res;
+    }
 };
 
 // -----------

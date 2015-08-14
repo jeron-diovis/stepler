@@ -35,6 +35,11 @@ describe("list", () => {
         assert(iterator(opts)(data) === "c");
     });
 
+    it("should format properly", () => {
+        opts.format = v => v + "z";
+        assert(iterator(opts)(data) === "cz");
+    });
+
     // should we throw error instead?
     it("should swallow unexisting values", () => {
         data.val = "unexisting";
