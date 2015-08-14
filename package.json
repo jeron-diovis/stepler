@@ -13,7 +13,6 @@
     "start": "npm test -- --watch",
     "build": "rm -rf build && babel -d build stepler.js",
     "prebuild": "npm test",
-    "postinstall": "npm build",
     "prepublish": "npm build"
   },
   "keywords": [
