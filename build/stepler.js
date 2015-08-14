@@ -63,10 +63,12 @@ iterator.list = function (options) {
         val: function val(data) {
             var val = options.val(data);
             return findIndex(val, options.list(data), options.match);
-        }
+        },
+        format: null // don't format intermediate value (i.e. index)
     }));
     return function (data) {
-        return options.list(data)[next(data)];
+        var res = options.list(data)[next(data)];
+        return options.format ? options.format(res, data) : res;
     };
 };
 
