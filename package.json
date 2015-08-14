@@ -1,0 +1,33 @@
+{
+  "name": "stepler",
+  "version": "1.0.0",
+  "readme": "README.md",
+  "description": "Define iteration rules for certain data structure and compute next step value from input data.",
+  "main": "build/stepler.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jeron-diovis/stepler"
+  },
+  "scripts": {
+    "test": "mocha --harmony --recursive --compilers js:mocha-babel",
+    "start": "npm test -- --watch",
+    "build": "rm -rf build && babel -d build stepler.js",
+    "prebuild": "npm test",
+    "postinstall": "npm build",
+    "prepublish": "npm build"
+  },
+  "keywords": [
+    "iterator",
+    "iterate",
+    "immutable",
+    "step"
+  ],
+  "author": "Jeron Diovis",
+  "license": "MIT",
+  "devDependencies": {
+    "babel": "^5.8.21",
+    "babel-runtime": "^5.8.20",
+    "chai": "^3.2.0",
+    "mocha-babel": "^3.0.0"
+  }
+}
