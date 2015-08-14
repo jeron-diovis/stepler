@@ -1,6 +1,6 @@
 {
   "name": "stepler",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "readme": "README.md",
   "description": "Define iteration rules for certain data structure and compute next step value from input data.",
   "main": "build/stepler.js",
@@ -13,7 +13,7 @@
     "start": "npm test -- --watch",
     "clean": "rm -rf build",
     "build": "npm run clean && babel -d build stepler.js",
-    "prepublish": "npm run build",
+    "prepublish": "npm test",
     "postinstall": "npm run build"
   },
   "keywords": [
@@ -24,8 +24,10 @@
   ],
   "author": "Jeron Diovis",
   "license": "MIT",
+  "dependencies": {
+    "babel": "^5.8.21"
+  },
   "devDependencies": {
-    "babel": "^5.8.21",
     "babel-runtime": "^5.8.20",
     "chai": "^3.2.0",
     "mocha-babel": "^3.0.0"
