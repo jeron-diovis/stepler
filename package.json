@@ -1,6 +1,6 @@
 {
   "name": "stepler",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "readme": "README.md",
   "description": "Define iteration rules for certain data structure and compute next step value from input data.",
   "main": "build/stepler.js",
@@ -11,9 +11,10 @@
   "scripts": {
     "test": "mocha --harmony --recursive --compilers js:mocha-babel",
     "start": "npm test -- --watch",
-    "build": "rm -rf build && babel -d build stepler.js",
-    "prebuild": "npm test",
-    "prepublish": "npm build"
+    "clean": "rm -rf build",
+    "build": "npm run clean && babel -d build stepler.js",
+    "prepublish": "npm run build",
+    "postinstall": "npm run build"
   },
   "keywords": [
     "iterator",

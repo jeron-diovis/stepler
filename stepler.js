@@ -1,7 +1,5 @@
 const zero = () => 0;
 
-const clone = (obj, ext) => Object.assign({}, obj, ext);
-
 // -----------
 
 const findIndex = (val, list, criteria) => {
@@ -38,14 +36,14 @@ const iterator = options => {
 };
 
 iterator.list = options => {
-    const next = iterator(clone(options, {
+    const next = iterator({...options,
         min: zero,
         max: data => options.list(data).length - 1,
         val: data => {
             const val = options.val(data);
             return findIndex(val, options.list(data), options.match);
         }
-    }));
+    });
     return data => options.list(data)[next(data)];
 };
 
@@ -53,8 +51,8 @@ iterator.list = options => {
 
 const paired = factory => {
     factory.pair = options => ({
-        prev: factory(clone(options, { forward: false, loop: options.loopBackward })),
-        next: factory(clone(options, { forward: true,  loop: options.loopForward  }))
+        prev: factory({...options, forward: false, loop: options.loopBackward }),
+        next: factory({...options, forward: true,  loop: options.loopForward  })
     });
 };
 
