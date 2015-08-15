@@ -19,8 +19,29 @@ opts.forward = false;
 stepler(opts)(data); // => 1
 ```
 
-#### Looping
+#### Step size
+Default step size is 1, which can be changed:
+```js
+const data = { value: 1, min: 0, max: 3 }
+const opts = {
+  val: ({ value }) => value,
+  max: ({ max }) => max,
+  step: 2
+});
 
+const next = stepler(opts);
+next(data) // => 3
+```
+
+Defining negative step size is denied:
+```js
+stepler({...opts, step: -1 }) // throws error
+```
+To change direction use a `forward` option.
+Fractional step size is allowed.
+
+#### Looping
+By default, if new value will overflow defined bounds, an old value will be returned:
 ```js
 const data = { value: 3, min: 0, max: 3 }
 const opts = {
@@ -30,10 +51,17 @@ const opts = {
 
 const next = stepler(opts);
 next(data) // => 3
+```
 
+This can be changed with `loop` option:
+```js
 opts.loop = true;
 stepler(opts)(data); // => 0
 ```
+
+**NOTE**, that it returns `0`, not `1` (as you might thought, i.e. "current + step - max"). 
+It does not calculate remainder and does not take care about step size.
+Just *"if new value exceeds limit, start from the opposite end"*.
 
 #### Formatting
 

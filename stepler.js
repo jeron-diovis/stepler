@@ -17,8 +17,17 @@ const findIndex = (val, list, criteria) => {
 
 // -----------
 
+const formatter = (options, fn) => data => {
+    const res = fn(data);
+    return options.format ? options.format(res, data) : res;
+};
+
+// -----------
+
 const iterator = options => {
     const { forward = true, loop = false, step = 1 } = options;
+
+    if (step < 0) { throw new Error(`[stepler] Only positive values allowed for 'step' option (got '${step}'). To define direction use 'forward' option.`); }
 
     const offset = Math.pow(-1, Number(!forward)) * step;
 
@@ -26,29 +35,23 @@ const iterator = options => {
 
     const handleOverflow = (val, max, min) => loop ? (forward ? min : max) : (val - offset);
 
-    return data => {
+    return formatter(options, data => {
         const val = options.val(data) + offset;
         const max = options.max(data);
         const min = options.min ? options.min(data) : zero();
-        const res = !isOverflow(val, max, min) ? val : handleOverflow(val, max, min);
-        return options.format ? options.format(res, data) : res;
-    };
+        return !isOverflow(val, max, min) ? val : handleOverflow(val, max, min);
+    });
 };
 
 iterator.list = options => {
-    const next = iterator({...options,
+    const next = iterator({
+        ...options,
         min: zero,
         max: data => options.list(data).length - 1,
-        val: data => {
-            const val = options.val(data);
-            return findIndex(val, options.list(data), options.match);
-        },
+        val: data => findIndex(options.val(data), options.list(data), options.match),
         format: null // don't format intermediate value (i.e. index)
     });
-    return data => {
-        const res = options.list(data)[next(data)];
-        return options.format ? options.format(res, data) : res;
-    }
+    return formatter(options, data => options.list(data)[next(data)]);
 };
 
 // -----------

@@ -22,17 +22,17 @@ describe("list", () => {
     });
 
     it("should still work", () => {
-        assert(iterator(opts)(data) === "c");
+        assert.strictEqual(iterator(opts)(data), "c");
 
         data.val = "c";
-        assert(iterator(opts)(data) === "c");
+        assert.strictEqual(iterator(opts)(data), "c");
 
         opts.loop = true;
-        assert(iterator(opts)(data) === "a");
+        assert.strictEqual(iterator(opts)(data), "a");
 
         opts.forward = false;
         data.val = "a";
-        assert(iterator(opts)(data) === "c");
+        assert.strictEqual(iterator(opts)(data), "c");
     });
 
     it("should format properly", () => {
