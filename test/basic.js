@@ -33,22 +33,22 @@ describe("basic", () => {
     });
 
     it("should not overflow limits", () => {
-        data.val = 3;
+        data.val = data.max;
         assert(iterator(opts)(data) === data.max);
 
         opts.forward = false;
-        data.val = 0;
+        data.val = data.min;
         assert(iterator(opts)(data) === data.min);
     });
 
     it("should loop if allowed", () => {
         opts.loop = true;
 
-        data.val = 3;
+        data.val = data.max;
         assert(iterator(opts)(data) === data.min);
 
         opts.forward = false;
-        data.val = 0;
+        data.val = data.min;
         assert(iterator(opts)(data) === data.max);
     });
 
@@ -66,8 +66,8 @@ describe("basic", () => {
         opts.max = max;
         opts.min = null;
         opts.forward = false;
-        data.val = 0;
-        assert(iterator(opts)(data) === 0);
+        data.val = data.min;
+        assert(iterator(opts)(data) === data.min);
     });
 
     it("should return formatted value", () => {

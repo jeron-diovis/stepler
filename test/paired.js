@@ -30,8 +30,8 @@ describe("pairs", () => {
             max: ({ max }) => max,
             loop: true
         });
-        const basic_data = { val: 3, min: 0, max: 3 };
-        assert(it.next(basic_data) === 3);
+        const data = { val: 3, min: 0, max: 3 };
+        assert(it.next(data) === 3);
     });
 
     it("should use 'loopForward' and 'loopBackward' option", () => {
@@ -48,4 +48,5 @@ describe("pairs", () => {
         data.val = data.min;
         assert(it.prev(data) === data.max);
     });
+
 });
