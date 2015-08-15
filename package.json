@@ -12,8 +12,10 @@
     "test": "mocha --harmony --recursive --compilers js:mocha-babel",
     "start": "npm test -- --watch",
     "clean": "rm -rf build",
+    "prebuild": "npm test",
     "build": "npm run clean && babel -d build stepler.js",
-    "prepublish": "npm run build && git add build && git ci -m 'upd. build file' && git push"
+    "push-new-build": "[[ -n $(git status -s -- build) ]] && git add build && git ci -m 'upd. build file' && git push",
+    "prepublish": "npm run build && npm run push-new-build"
   },
   "keywords": [
     "iterator",
