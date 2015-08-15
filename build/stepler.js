@@ -12,7 +12,7 @@ var zero = function zero() {
 
 // -----------
 
-var findIndex = function findIndex(val, list, criteria) {
+function findIndex(val, list, criteria) {
     if (typeof criteria !== "function") {
         return list.indexOf(val);
     }
@@ -23,7 +23,7 @@ var findIndex = function findIndex(val, list, criteria) {
         }
     }
     return -1;
-};
+}
 
 // -----------
 
