@@ -27,6 +27,15 @@ var findIndex = function findIndex(val, list, criteria) {
 
 // -----------
 
+var formatter = function formatter(options, fn) {
+    return function (data) {
+        var res = fn(data);
+        return options.format ? options.format(res, data) : res;
+    };
+};
+
+// -----------
+
 var iterator = function iterator(options) {
     var _options$forward = options.forward;
     var forward = _options$forward === undefined ? true : _options$forward;
@@ -34,6 +43,10 @@ var iterator = function iterator(options) {
     var loop = _options$loop === undefined ? false : _options$loop;
     var _options$step = options.step;
     var step = _options$step === undefined ? 1 : _options$step;
+
+    if (step < 0) {
+        throw new Error("[stepler] Only positive values allowed for 'step' option (got '" + step + "'). To define direction use 'forward' option.");
+    }
 
     var offset = Math.pow(-1, Number(!forward)) * step;
 
@@ -45,13 +58,12 @@ var iterator = function iterator(options) {
         return loop ? forward ? min : max : val - offset;
     };
 
-    return function (data) {
+    return formatter(options, function (data) {
         var val = options.val(data) + offset;
         var max = options.max(data);
         var min = options.min ? options.min(data) : zero();
-        var res = !isOverflow(val, max, min) ? val : handleOverflow(val, max, min);
-        return options.format ? options.format(res, data) : res;
-    };
+        return !isOverflow(val, max, min) ? val : handleOverflow(val, max, min);
+    });
 };
 
 iterator.list = function (options) {
@@ -61,15 +73,13 @@ iterator.list = function (options) {
             return options.list(data).length - 1;
         },
         val: function val(data) {
-            var val = options.val(data);
-            return findIndex(val, options.list(data), options.match);
+            return findIndex(options.val(data), options.list(data), options.match);
         },
         format: null // don't format intermediate value (i.e. index)
     }));
-    return function (data) {
-        var res = options.list(data)[next(data)];
-        return options.format ? options.format(res, data) : res;
-    };
+    return formatter(options, function (data) {
+        return options.list(data)[next(data)];
+    });
 };
 
 // -----------

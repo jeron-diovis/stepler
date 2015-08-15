@@ -14,8 +14,10 @@
     "clean": "rm -rf build",
     "prebuild": "npm test",
     "build": "npm run clean && babel -d build stepler.js",
-    "push-new-build": "[[ -n $(git status -s -- build) ]] && git add build && git ci -m 'upd. build file' && git push",
-    "prepublish": "npm run build && npm run push-new-build"
+    "is-build-updated": "[[ -n $(git status -s -- build) ]]",
+    "commit-new-build": "npm run is-build-updated && git add build && git ci -m 'upd. build file'",
+    "update-version": "npm version $(PS3='New version is: '; select version in patch minor major; do echo $version; break; done;)",
+    "release": "npm run build && npm run commit-new-build && npm run update-version && git push && npm publish"
   },
   "keywords": [
     "iterator",
