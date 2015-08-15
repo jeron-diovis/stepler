@@ -2,7 +2,7 @@ const zero = () => 0;
 
 // -----------
 
-const findIndex = (val, list, criteria) => {
+function findIndex(val, list, criteria) {
     if (typeof criteria !== "function") {
         return list.indexOf(val);
     }
@@ -13,7 +13,7 @@ const findIndex = (val, list, criteria) => {
         }
     }
     return -1;
-};
+}
 
 // -----------
 
