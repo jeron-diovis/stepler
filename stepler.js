@@ -31,15 +31,13 @@ const iterator = options => {
 
     const offset = Math.pow(-1, Number(!forward)) * step;
 
-    const isOverflow = (val, max, min) => forward ? (val > max) : (val < min);
-
-    const handleOverflow = (val, max, min) => loop ? (forward ? min : max) : (val - offset);
-
     return formatter(options, data => {
-        const val = options.val(data) + offset;
+        const val = options.val(data);
+        const next = val + offset;
         const max = options.max(data);
         const min = options.min ? options.min(data) : zero();
-        return !isOverflow(val, max, min) ? val : handleOverflow(val, max, min);
+        const isOverflow = forward ? (next > max) : (next < min);
+        return !isOverflow ? next : (!loop ? val : (forward ? min : max));
     });
 };
 
