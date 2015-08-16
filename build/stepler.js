@@ -50,19 +50,13 @@ var iterator = function iterator(options) {
 
     var offset = Math.pow(-1, Number(!forward)) * step;
 
-    var isOverflow = function isOverflow(val, max, min) {
-        return forward ? val > max : val < min;
-    };
-
-    var handleOverflow = function handleOverflow(val, max, min) {
-        return loop ? forward ? min : max : val - offset;
-    };
-
     return formatter(options, function (data) {
-        var val = options.val(data) + offset;
+        var val = options.val(data);
+        var next = val + offset;
         var max = options.max(data);
         var min = options.min ? options.min(data) : zero();
-        return !isOverflow(val, max, min) ? val : handleOverflow(val, max, min);
+        var isOverflow = forward ? next > max : next < min;
+        return !isOverflow ? next : !loop ? val : forward ? min : max;
     });
 };
 
