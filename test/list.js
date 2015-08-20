@@ -56,8 +56,9 @@ describe("list", () => {
 
     it("should require 'list' option", () => {
         opts.list = null;
+        const re = /Required option .* is missed/;
         const fn = () => iterator(opts)(data);
-        assert.throws(fn, /is not a function/);
+        assert.throws(fn, re);
     });
 
     it("should allow to set custom match criteria", () => {

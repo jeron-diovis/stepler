@@ -55,13 +55,14 @@ describe("basic", () => {
     it("should require 'val' and 'max' options, and set 'min' to 0 by default", () => {
         const { val, max } = opts;
         const fn = () => iterator(opts)(data);
+        const re = /Required option .* is missed/;
 
         opts.val = null;
-        assert.throws(fn, /is not a function/);
+        assert.throws(fn, re);
 
         opts.val = val;
         opts.max = null;
-        assert.throws(fn, /is not a function/);
+        assert.throws(fn, re);
 
         opts.max = max;
         opts.min = null;

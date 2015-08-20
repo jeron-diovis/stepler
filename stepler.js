@@ -1,4 +1,20 @@
-const zero = () => 0;
+function resolve(obj, prop, ...args) {
+    const val = obj[prop];
+    return typeof val !== "function" ? val : val(...args);
+}
+
+function resolveRequired(obj, prop) {
+    const val = resolve(...arguments);
+    if (val == null) {
+        throw new Error(`[stepler] Required option '${prop}' is missed`);
+    }
+    return val;
+}
+
+function resolveOptional(defaultVal, ...args) {
+    const val = resolve(...args);
+    return val != null ? val : defaultVal;
+}
 
 // -----------
 
@@ -32,10 +48,10 @@ const iterator = options => {
     const offset = Math.pow(-1, Number(!forward)) * step;
 
     return formatter(options, data => {
-        const val = options.val(data);
+        const val = resolveRequired(options, "val", data);
         const next = val + offset;
-        const max = options.max(data);
-        const min = options.min ? options.min(data) : zero();
+        const max = resolveRequired(options, "max", data);
+        const min = resolveOptional(0, options, "min", data);
         const isOverflow = forward ? (next > max) : (next < min);
         return !isOverflow ? next : (!loop ? val : (forward ? min : max));
     });
@@ -48,12 +64,16 @@ iterator.list = options => {
 
     const next = iterator({
         ...options,
-        min: zero,
-        max: data => options.list(data).length - 1,
-        val: data => findIndex(options.val(data), options.list(data), options.match),
+        min: 0,
+        max: data => resolveRequired(options, "list", data).length - 1,
+        val: data => findIndex(
+          resolveRequired(options, "val", data),
+          resolveRequired(options, "list", data),
+          options.match
+        ),
         format: null // don't format intermediate value (i.e. index)
     });
-    return formatter(options, data => options.list(data)[next(data)]);
+    return formatter(options, data => resolveRequired(options, "list", data)[next(data)]);
 };
 
 // -----------
