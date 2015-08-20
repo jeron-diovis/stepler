@@ -30,20 +30,20 @@ describe("list", () => {
         opts.loop = true;
         assert.strictEqual(iterator(opts)(data), "a");
 
-        opts.forward = false;
+        opts.step = -1;
         data.val = "a";
         assert.strictEqual(iterator(opts)(data), "c");
     });
 
     it("should format properly", () => {
         opts.format = v => v + "z";
-        assert(iterator(opts)(data) === "cz");
+        assert.strictEqual(iterator(opts)(data), "cz");
     });
 
     // should we throw error instead?
     it("should swallow unexisting values", () => {
         data.val = "unexisting";
-        assert(iterator(opts)(data) === "a");
+        assert.strictEqual(iterator(opts)(data), "a");
     });
 
     it("should ignore 'max' and 'min' options", () => {
@@ -86,7 +86,7 @@ describe("list", () => {
 
     it("should not accept fractional step size", () => {
         opts.step = 0.5;
-        const fn = () => iterator(opts);
+        const fn = () => iterator(opts)(data);
         assert.throws(fn, /Fractional step size is not allowed/);
     })
 });

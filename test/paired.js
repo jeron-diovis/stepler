@@ -60,4 +60,12 @@ describe("pairs", () => {
         assert.strictEqual(it.next(data), data.max);
         assert.strictEqual(it.prev(data), data.min);
     });
+
+    it("should throw if negative step is defined", () => {
+        const it = iterator.pair({
+            step: () => -2
+        });
+        const fn = () => it.next();
+        assert.throws(fn, /Negative step size is not allowed/);
+    });
 });
