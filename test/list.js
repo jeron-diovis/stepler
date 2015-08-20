@@ -27,7 +27,7 @@ describe("list", () => {
         data.val = "c";
         assert.strictEqual(iterator(opts)(data), "c");
 
-        opts.loop = true;
+        opts.overflow = "loop";
         assert.strictEqual(iterator(opts)(data), "a");
 
         opts.step = -1;

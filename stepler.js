@@ -41,6 +41,25 @@ const getVal = (options, ...args) => resolveRequired(options, "val",...args);
 
 // -----------
 
+const OVERFLOW_STOP = "stop";
+const OVERFLOW_LOOP = "loop";
+const OVERFLOW_SNAP = "snap";
+
+const handleOverflow = (opt, val, forward, min, max) => {
+    switch (opt) {
+        case OVERFLOW_STOP:
+            return val;
+        case OVERFLOW_LOOP:
+            return forward ? min : max;
+        case OVERFLOW_SNAP:
+            return forward ? max : min;
+        default:
+            throw new Error(`[stepler] Unknown value for 'overflow' option: '${opt}'`);
+    }
+};
+
+// -----------
+
 const formatter = (options, fn) => data => {
     const res = fn(data);
     return options.format ? options.format(res, data) : res;
@@ -51,7 +70,7 @@ const formatter = (options, fn) => data => {
 const iterator = options => {
     options = { ...options }; // clone
 
-    const { loop = false } = options;
+    const { overflow = OVERFLOW_STOP } = options;
 
     return formatter(options, data => {
         const step = getStep(options, data);
@@ -61,7 +80,7 @@ const iterator = options => {
         const forward = step > 0;
         const next = val + step;
         const isOverflow = forward ? (next > max) : (next < min);
-        return !isOverflow ? next : (!loop ? val : (forward ? min : max));
+        return !isOverflow ? next : handleOverflow(overflow, val, forward, min, max);
     });
 };
 
@@ -99,16 +118,20 @@ const paired = factory => {
             return Math.abs(step);
         };
 
+        if (options.hasOwnProperty("overflow")) {
+            throw new Error(`[stepler] Option 'overflow' is not allowed for paired iterator (got '${options.overflow}'). Use overflowBackward / overflowForward instead.`);
+        }
+
         return {
             prev: factory({
                 ...options,
                 step: negate(step),
-                loop: options.loopBackward
+                overflow: options.overflowBackward
             }),
             next: factory({
                 ...options,
                 step: step,
-                loop: options.loopForward
+                overflow: options.overflowForward
             })
         }
     };
@@ -118,5 +141,9 @@ paired(iterator);
 paired(iterator.list);
 
 // -----------
+
+iterator.OVERFLOW_STOP = OVERFLOW_STOP;
+iterator.OVERFLOW_LOOP = OVERFLOW_LOOP;
+iterator.OVERFLOW_SNAP = OVERFLOW_SNAP;
 
 export default iterator;

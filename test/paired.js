@@ -23,24 +23,23 @@ describe("pairs", () => {
         assert.strictEqual(lit.prev(list_data), "a");
     });
 
-    it("should ignore 'loop' option", () => {
-        const it = iterator.pair({
+    it("should not accept 'overflow' option", () => {
+        const fn = () => iterator.pair({
             val: ({ val }) => val,
             min: ({ min }) => min,
             max: ({ max }) => max,
-            loop: true
+            overflow: "loop"
         });
-        const data = { val: 3, min: 0, max: 3 };
-        assert.strictEqual(it.next(data), 3);
+        assert.throws(fn, /Option 'overflow' is not allowed for paired iterator/);
     });
 
-    it("should use 'loopForward' and 'loopBackward' option", () => {
+    it("should use 'overflowForward' and 'overflowBackward' option", () => {
         const it = iterator.pair({
             val: ({ val }) => val,
             min: ({ min }) => min,
             max: ({ max }) => max,
-            loopForward: true,
-            loopBackward: true
+            overflowForward: "loop",
+            overflowBackward: "loop"
         });
         const data = { val: 3, min: 0, max: 3 };
         assert.strictEqual(it.next(data), data.min);
