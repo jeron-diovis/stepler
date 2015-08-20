@@ -76,4 +76,16 @@ describe("list", () => {
         opts.match = ({ foo }, { bar }) => foo === bar;
         assert.deepEqual(iterator(opts)(data), data.letters[1]);
     });
+
+    it("should work with custom step size", () => {
+        opts.step = 2;
+        data.val = "a";
+        assert.strictEqual(iterator(opts)(data), "c");
+    });
+
+    it("should not accept fractional step size", () => {
+        opts.step = 0.5;
+        const fn = () => iterator(opts);
+        assert.throws(fn, /Fractional step size is not allowed/);
+    })
 });

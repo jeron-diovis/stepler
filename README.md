@@ -38,7 +38,8 @@ Defining negative step size is denied:
 stepler({...opts, step: -1 }) // throws error
 ```
 To change direction use a `forward` option.
-Fractional step size is allowed.
+
+Fractional step size is allowed for simple iterator, and not allowed for lists.
 
 #### Looping
 By default, if new value will overflow defined bounds, an old value will be returned:

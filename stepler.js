@@ -42,6 +42,10 @@ const iterator = options => {
 };
 
 iterator.list = options => {
+    if (options.step && Math.round(options.step) !== options.step) {
+        throw new Error(`[stepler] Fractional step size is not allowed for list iterator (got ${options.step})`);
+    }
+
     const next = iterator({
         ...options,
         min: zero,
