@@ -1,6 +1,6 @@
 {
   "name": "stepler",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "readme": "README.md",
   "description": "Define iteration rules for certain data structure and compute next step value from input data.",
   "main": "build/stepler.js",
