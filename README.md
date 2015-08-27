@@ -135,8 +135,8 @@ So you can, for example, create iterator with dynamic step:
 ```js
 const opts = {
    min: 0,
-   max: () => this.maxValue,
-   val: () => this.currentValue,
+   max: 42,
+   val: () => this.someCurrentValue,
    step: v => v
 }
 const next = stepler(opts);
