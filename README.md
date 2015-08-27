@@ -33,8 +33,6 @@ const next = stepler(opts);
 next(data) // => 3
 ```
 
-Fractional step size is allowed for simple iterator, and not allowed for lists.
-
 #### Overflow
 By default, if new value will overflow defined bounds, an old value will be returned:
 ```js
@@ -59,8 +57,8 @@ opts.oveflow = stepler.OVERFLOW_SNAP;
 stepler(opts)(data); // => 3
 ```
 
-**NOTE**, that it returns `0`, not `1` (as you might thought, i.e. "current + step - max"). 
-It does not calculate remainder and does not take care about step size.
+**NOTE**, that with `OVERFLOW_LOOP` it returns `0`, not `1` (as you might thought, i.e. "current + step - max"). 
+With this option it does not calculate remainder and does not take care about step size.
 Just *"if new value exceeds limit, start from the opposite end"*.
 
 #### Formatting
@@ -87,11 +85,13 @@ const data = { value: "c", labels: [ "a", "b", "c", "d" ] }
 const opts = {
   val: ({ value }) => value,
   list: ({ labels }) => labels // required. Get list to iterate over from your data structure
-  // `min` and `max` options are denied here. They are set to `list.length - 1` and `0` respectively
 }
 const next =  stepler.list(opts);
 next(data) // => "d"
 ```
+`min` and `max` options are denied for list iterator. They are internally set to `list.length - 1` and `0` respectively.
+Fractional step size is also denied here, I'm sure you know why.
+
 
 #### Custom matcher
 ```js
