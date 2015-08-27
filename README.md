@@ -15,7 +15,7 @@ const opts = {
 const next = stepler(opts);
 next(data) // => 3
 
-opts.forward = false;
+opts.step = -1;
 stepler(opts)(data); // => 1
 ```
 
@@ -33,15 +33,9 @@ const next = stepler(opts);
 next(data) // => 3
 ```
 
-Defining negative step size is denied:
-```js
-stepler({...opts, step: -1 }) // throws error
-```
-To change direction use a `forward` option.
-
 Fractional step size is allowed for simple iterator, and not allowed for lists.
 
-#### Looping
+#### Overflow
 By default, if new value will overflow defined bounds, an old value will be returned:
 ```js
 const data = { value: 3, min: 0, max: 3 }
@@ -54,10 +48,15 @@ const next = stepler(opts);
 next(data) // => 3
 ```
 
-This can be changed with `loop` option:
+This can be changed with `overflow` option:
 ```js
-opts.loop = true;
+opts.oveflow = stepler.OVERFLOW_LOOP;
 stepler(opts)(data); // => 0
+
+data.value = 2;
+opts.step = 2 ;
+opts.oveflow = stepler.OVERFLOW_SNAP;
+stepler(opts)(data); // => 3
 ```
 
 **NOTE**, that it returns `0`, not `1` (as you might thought, i.e. "current + step - max"). 
@@ -88,7 +87,7 @@ const data = { value: "c", labels: [ "a", "b", "c", "d" ] }
 const opts = {
   val: ({ value }) => value,
   list: ({ labels }) => labels // required. Get list to iterate over from your data structure
-  // `min` and `max` options are ignored. They are set to `list.length - 1` and `0` respectively
+  // `min` and `max` options are denied here. They are set to `list.length - 1` and `0` respectively
 }
 const next =  stepler.list(opts);
 next(data) // => "d"
@@ -121,8 +120,25 @@ const letters = stepler.list.pair(opts);
 letters.next(data) // => "d"
 letters.prev(data) // => "b"
 
-// there are separate options to enable looping for paired iterators:
-letters = stepler.list.pair({...opts, loopForward: true, loopBackward: true });
+// there are separate options to handle overflow for paired iterator:
+letters = stepler.list.pair({...opts, owerflowForward: stepler.OVERFLOW_LOOP, overflowBackward: stepler.OVERFLOW_STOP });
 letters.next({...data, value: "d" }) // => "a"
-letters.prev({...data, value: "a" }) // => "d"
+letters.prev({...data, value: "a" }) // => "a"
+```
+Negative step size is denied for paired iterators, to be sure that `next` goes forward and `prev` goes backward.
+
+
+## Constant and dynamic
+
+All options, except of `overflow`, can be defined either as functions or as contants.
+So you can, for example, create iterator with dynamic step:
+```js
+const opts = {
+   min: 0,
+   max: () => this.maxValue,
+   val: () => this.currentValue,
+   step: v => v
+}
+const next = stepler(opts);
+next(someStepValue);
 ```
