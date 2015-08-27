@@ -89,7 +89,7 @@ const opts = {
 const next =  stepler.list(opts);
 next(data) // => "d"
 ```
-`min` and `max` options are denied for list iterator. They are internally set to `list.length - 1` and `0` respectively.
+`min` and `max` options are denied for list iterator. They are internally set to `0` and `list.length - 1` respectively.
 Fractional step size is also denied here, I'm sure you know why.
 
 
