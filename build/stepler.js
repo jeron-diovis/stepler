@@ -84,7 +84,11 @@ var OVERFLOW_STOP = "stop";
 var OVERFLOW_LOOP = "loop";
 var OVERFLOW_SNAP = "snap";
 
-var handleOverflow = function handleOverflow(opt, val, forward, min, max) {
+var handleOverflow = function handleOverflow(opt, next, val, forward, min, max, data) {
+    if (typeof opt === "function") {
+        return opt(next, data, { forward: forward, max: max, min: min, val: val });
+    }
+
     switch (opt) {
         case OVERFLOW_STOP:
             return val;
@@ -123,7 +127,7 @@ var iterator = function iterator(options) {
         var forward = step > 0;
         var next = val + step;
         var isOverflow = forward ? next > max : next < min;
-        return !isOverflow ? next : handleOverflow(overflow, val, forward, min, max);
+        return !isOverflow ? next : handleOverflow(overflow, next, val, forward, min, max, data);
     });
 };
 
