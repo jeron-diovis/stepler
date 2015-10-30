@@ -55,6 +55,10 @@ data.value = 2;
 opts.step = 2 ;
 opts.oveflow = stepler.OVERFLOW_SNAP;
 stepler(opts)(data); // => 3
+
+opts.overflow = function(overflowingValue, data, { val, min, max, forward }) {
+  // something custom
+};
 ```
 
 **NOTE**, that with `OVERFLOW_LOOP` it returns `0`, not `1` (as you might thought, i.e. "current + step - max"). 

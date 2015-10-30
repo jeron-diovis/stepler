@@ -1,4 +1,5 @@
 import { assert } from "chai";
+import sinon from "sinon";
 
 import iterator from "../stepler";
 
@@ -78,6 +79,27 @@ describe("basic", () => {
             opts.step = -2;
             data.val = data.min + 1;
             assert.strictEqual(iterator(opts)(data), data.min);
+        });
+
+        it("should support functions", () => {
+            opts.step = 1;
+
+            const spy = sinon.spy();
+
+            opts.overflow = spy;
+
+            data.val = data.max;
+            iterator(opts)(data);
+
+            assert(spy.calledOnce);
+            assert(spy.calledWith(data.val + 1, data));
+            assert.strictEqual(spy.args[0].length, 3);
+            assert.deepEqual(spy.args[0][2], {
+                val: data.val,
+                forward: true,
+                max: data.max,
+                min: data.min
+            });
         });
 
         it("should throw", () => {

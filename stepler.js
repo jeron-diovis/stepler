@@ -45,7 +45,11 @@ const OVERFLOW_STOP = "stop";
 const OVERFLOW_LOOP = "loop";
 const OVERFLOW_SNAP = "snap";
 
-const handleOverflow = (opt, val, forward, min, max) => {
+const handleOverflow = (opt, next, val, forward, min, max, data) => {
+    if (typeof opt === "function") {
+        return opt(next, data, { forward, max, min, val });
+    }
+
     switch (opt) {
         case OVERFLOW_STOP:
             return val;
@@ -80,7 +84,7 @@ const iterator = options => {
         const forward = step > 0;
         const next = val + step;
         const isOverflow = forward ? (next > max) : (next < min);
-        return !isOverflow ? next : handleOverflow(overflow, val, forward, min, max);
+        return !isOverflow ? next : handleOverflow(overflow, next, val, forward, min, max, data);
     });
 };
 
