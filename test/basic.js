@@ -45,7 +45,7 @@ describe("basic", () => {
     });
 
 
-    it("should pass direction to format function aas last arg", () => {
+    it("should pass direction to format function as last arg", () => {
         const spy = sinon.spy();
         opts.format = spy;
         iterator({ ...opts, step: 1 })(data);

@@ -1,4 +1,5 @@
 import { assert } from "chai";
+import sinon from "sinon";
 
 import _iterator from "../stepler";
 const iterator = _iterator.list;
@@ -38,6 +39,15 @@ describe("list", () => {
     it("should format properly", () => {
         opts.format = v => v + "z";
         assert.strictEqual(iterator(opts)(data), "cz");
+    });
+
+    it("should pass direction to format function as last arg", () => {
+        const spy = sinon.spy();
+        opts.format = spy;
+        iterator({ ...opts, step: 1 })(data);
+        iterator({ ...opts, step: -1 })(data);
+        assert.deepEqual(spy.firstCall.args[2], { forward: true });
+        assert.deepEqual(spy.secondCall.args[2], { forward: false });
     });
 
     // should we throw error instead?

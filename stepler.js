@@ -95,6 +95,7 @@ const iterator = options => {
 iterator.list = options => {
     const { overflow } = options;
     let hasOverflow = false;
+    let isForward = false;
 
     const next = iterator({
         ...options,
@@ -105,7 +106,11 @@ iterator.list = options => {
           getList(options, data),
           options.match
         ),
-        format: null, // don't format intermediate value (i.e. index)
+        format: (val, data, { forward }) => {
+            isForward = forward;
+            // don't format intermediate value (i.e. index)
+            return val;
+        },
         overflow: typeof overflow !== "function"
             ? overflow
             : (...args) => {
@@ -123,12 +128,13 @@ iterator.list = options => {
 
     return data => {
         hasOverflow = false;
+        isForward = false;
 
         const nextIdx = next(data);
         const list = getList(options, data);
         const nextItem = list[nextIdx];
 
-        return hasOverflow ? nextItem : formatResult(nextItem, options, data);
+        return hasOverflow ? nextItem : formatResult(nextItem, options, data, { forward: isForward });
     };
 };
 
