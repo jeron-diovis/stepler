@@ -142,6 +142,7 @@ iterator.list = function (options) {
     var overflow = options.overflow;
 
     var hasOverflow = false;
+    var overflowValue = undefined;
     var isForward = false;
 
     var next = iterator(_extends({}, options, {
@@ -161,7 +162,8 @@ iterator.list = function (options) {
         },
         overflow: typeof overflow !== "function" ? overflow : function () {
             hasOverflow = true;
-            return overflow.apply(undefined, arguments);
+            overflowValue = overflow.apply(undefined, arguments);
+            return overflowValue;
         },
         step: function step() {
             for (var _len7 = arguments.length, args = Array(_len7), _key7 = 0; _key7 < _len7; _key7++) {
@@ -178,13 +180,14 @@ iterator.list = function (options) {
 
     return function (data) {
         hasOverflow = false;
+        overflowValue = undefined;
         isForward = false;
 
         var nextIdx = next(data);
         var list = getList(options, data);
         var nextItem = list[nextIdx];
 
-        return hasOverflow ? nextItem : formatResult(nextItem, options, data, { forward: isForward });
+        return hasOverflow ? overflowValue : formatResult(nextItem, options, data, { forward: isForward });
     };
 };
 
