@@ -17,6 +17,7 @@ function resolveOptional(defaultVal, ...args) {
 }
 
 const negate = fn => (...args) => fn(...args) * -1;
+const has = (obj, key) => obj.hasOwnProperty(key);
 
 // -----------
 
@@ -122,20 +123,20 @@ const paired = factory => {
             return Math.abs(step);
         };
 
-        if (options.hasOwnProperty("overflow")) {
-            throw new Error(`[stepler] Option 'overflow' is not allowed for paired iterator (got '${options.overflow}'). Use overflowBackward / overflowForward instead.`);
+        if (has(options, "overflow") && (has(options, "overflowForward") || has(options, "overflowBackward"))) {
+            throw new Error("[stepler] It's not allowed to use at the same time options 'overflow' and 'overflowBackward' / 'overflowForward'");
         }
 
         return {
             prev: factory({
                 ...options,
                 step: negate(step),
-                overflow: options.overflowBackward
+                overflow: options.overflowBackward || options.overflow
             }),
             next: factory({
                 ...options,
                 step: step,
-                overflow: options.overflowForward
+                overflow: options.overflowForward || options.overflow
             })
         }
     };
