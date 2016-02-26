@@ -50,6 +50,18 @@ describe("list", () => {
         assert.deepEqual(spy.secondCall.args[2], { forward: false });
     });
 
+    it("should NOT apply 'format' to overflowing result if 'overflow' is a function", () => {
+        const overflowingResult = {};
+        const overflowHandler = sinon.spy(() => overflowingResult);
+        const formatHandler = sinon.spy();
+
+        data.val = "c";
+        const res = iterator({ ...opts, overflow: overflowHandler, format: formatHandler })(data);
+
+        assert.isFalse(formatHandler.called);
+        assert.equal(res, overflowingResult);
+    });
+
     // should we throw error instead?
     it("should swallow unexisting values", () => {
         data.val = "unexisting";

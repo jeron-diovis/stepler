@@ -95,6 +95,7 @@ const iterator = options => {
 iterator.list = options => {
     const { overflow } = options;
     let hasOverflow = false;
+    let overflowValue = undefined;
     let isForward = false;
 
     const next = iterator({
@@ -115,8 +116,9 @@ iterator.list = options => {
             ? overflow
             : (...args) => {
                 hasOverflow = true;
-                return overflow(...args);
-            },
+                overflowValue = overflow(...args);
+                return overflowValue;
+        },
         step: (...args) => {
             const step = getStep(options, ...args);
             if (Math.round(step) !== step) {
@@ -128,13 +130,14 @@ iterator.list = options => {
 
     return data => {
         hasOverflow = false;
+        overflowValue = undefined;
         isForward = false;
 
         const nextIdx = next(data);
         const list = getList(options, data);
         const nextItem = list[nextIdx];
 
-        return hasOverflow ? nextItem : formatResult(nextItem, options, data, { forward: isForward });
+        return hasOverflow ? overflowValue : formatResult(nextItem, options, data, { forward: isForward });
     };
 };
 
