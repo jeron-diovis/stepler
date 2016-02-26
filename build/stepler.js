@@ -134,7 +134,7 @@ var iterator = function iterator(options) {
             return overflow(next, data, { forward: forward, max: max, min: min, val: val });
         }
 
-        return formatResult(!isOverflow ? next : handleOverflow(overflow, next, val, forward, min, max, data), options, data);
+        return formatResult(!isOverflow ? next : handleOverflow(overflow, next, val, forward, min, max, data), options, data, { forward: forward });
     };
 };
 
@@ -200,14 +200,20 @@ var paired = function paired(factory) {
             throw new Error("[stepler] It's not allowed to use at the same time options 'overflow' and 'overflowBackward' / 'overflowForward'");
         }
 
+        if (has(options, "format") && (has(options, "formatForward") || has(options, "formatBackward"))) {
+            throw new Error("[stepler] It's not allowed to use at the same time options 'format' and 'formatBackward' / 'formatForward'");
+        }
+
         return {
             prev: factory(_extends({}, options, {
                 step: negate(step),
-                overflow: options.overflowBackward || options.overflow
+                overflow: options.overflowBackward || options.overflow,
+                format: options.formatBackward || options.format
             })),
             next: factory(_extends({}, options, {
                 step: step,
-                overflow: options.overflowForward || options.overflow
+                overflow: options.overflowForward || options.overflow,
+                format: options.formatForward || options.format
             }))
         };
     };
