@@ -38,6 +38,9 @@ var negate = function negate(fn) {
         return fn.apply(undefined, arguments) * -1;
     };
 };
+var has = function has(obj, key) {
+    return obj.hasOwnProperty(key);
+};
 
 // -----------
 
@@ -77,6 +80,13 @@ var getVal = function getVal(options) {
 
     return resolveRequired.apply(undefined, [options, "val"].concat(args));
 };
+var formatResult = function formatResult(val, options) {
+    for (var _len6 = arguments.length, args = Array(_len6 > 2 ? _len6 - 2 : 0), _key6 = 2; _key6 < _len6; _key6++) {
+        args[_key6 - 2] = arguments[_key6];
+    }
+
+    return resolveOptional.apply(undefined, [val, options, "format", val].concat(args));
+};
 
 // -----------
 
@@ -103,15 +113,6 @@ var handleOverflow = function handleOverflow(opt, next, val, forward, min, max, 
 
 // -----------
 
-var formatter = function formatter(options, fn) {
-    return function (data) {
-        var res = fn(data);
-        return options.format ? options.format(res, data) : res;
-    };
-};
-
-// -----------
-
 var iterator = function iterator(options) {
     options = _extends({}, options); // clone
 
@@ -119,7 +120,7 @@ var iterator = function iterator(options) {
     var _options$overflow = _options.overflow;
     var overflow = _options$overflow === undefined ? OVERFLOW_STOP : _options$overflow;
 
-    return formatter(options, function (data) {
+    return function (data) {
         var step = getStep(options, data);
         var val = getVal(options, data);
         var max = resolveRequired(options, "max", data);
@@ -127,11 +128,21 @@ var iterator = function iterator(options) {
         var forward = step > 0;
         var next = val + step;
         var isOverflow = forward ? next > max : next < min;
-        return !isOverflow ? next : handleOverflow(overflow, next, val, forward, min, max, data);
-    });
+
+        // Consider calling overflow function as a kind of exception - don't apply formatting.
+        if (isOverflow && typeof overflow === "function") {
+            return overflow(next, data, { forward: forward, max: max, min: min, val: val });
+        }
+
+        return formatResult(!isOverflow ? next : handleOverflow(overflow, next, val, forward, min, max, data), options, data);
+    };
 };
 
 iterator.list = function (options) {
+    var overflow = options.overflow;
+
+    var hasOverflow = false;
+
     var next = iterator(_extends({}, options, {
         min: 0,
         max: function max(data) {
@@ -141,9 +152,13 @@ iterator.list = function (options) {
             return findIndex(getVal(options, data), getList(options, data), options.match);
         },
         format: null, // don't format intermediate value (i.e. index)
+        overflow: typeof overflow !== "function" ? overflow : function () {
+            hasOverflow = true;
+            return overflow.apply(undefined, arguments);
+        },
         step: function step() {
-            for (var _len6 = arguments.length, args = Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
-                args[_key6] = arguments[_key6];
+            for (var _len7 = arguments.length, args = Array(_len7), _key7 = 0; _key7 < _len7; _key7++) {
+                args[_key7] = arguments[_key7];
             }
 
             var step = getStep.apply(undefined, [options].concat(args));
@@ -153,9 +168,16 @@ iterator.list = function (options) {
             return step;
         }
     }));
-    return formatter(options, function (data) {
-        return getList(options, data)[next(data)];
-    });
+
+    return function (data) {
+        hasOverflow = false;
+
+        var nextIdx = next(data);
+        var list = getList(options, data);
+        var nextItem = list[nextIdx];
+
+        return hasOverflow ? nextItem : formatResult(nextItem, options, data);
+    };
 };
 
 // -----------
@@ -163,8 +185,8 @@ iterator.list = function (options) {
 var paired = function paired(factory) {
     factory.pair = function (options) {
         var step = function step() {
-            for (var _len7 = arguments.length, args = Array(_len7), _key7 = 0; _key7 < _len7; _key7++) {
-                args[_key7] = arguments[_key7];
+            for (var _len8 = arguments.length, args = Array(_len8), _key8 = 0; _key8 < _len8; _key8++) {
+                args[_key8] = arguments[_key8];
             }
 
             var step = getStep.apply(undefined, [options].concat(args));
@@ -174,18 +196,18 @@ var paired = function paired(factory) {
             return Math.abs(step);
         };
 
-        if (options.hasOwnProperty("overflow")) {
-            throw new Error("[stepler] Option 'overflow' is not allowed for paired iterator (got '" + options.overflow + "'). Use overflowBackward / overflowForward instead.");
+        if (has(options, "overflow") && (has(options, "overflowForward") || has(options, "overflowBackward"))) {
+            throw new Error("[stepler] It's not allowed to use at the same time options 'overflow' and 'overflowBackward' / 'overflowForward'");
         }
 
         return {
             prev: factory(_extends({}, options, {
                 step: negate(step),
-                overflow: options.overflowBackward
+                overflow: options.overflowBackward || options.overflow
             })),
             next: factory(_extends({}, options, {
                 step: step,
-                overflow: options.overflowForward
+                overflow: options.overflowForward || options.overflow
             }))
         };
     };
