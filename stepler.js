@@ -87,7 +87,7 @@ const iterator = options => {
 
         return formatResult(
             !isOverflow ? next : handleOverflow(overflow, next, val, forward, min, max, data),
-            options, data
+            options, data, { forward }
         );
     };
 };

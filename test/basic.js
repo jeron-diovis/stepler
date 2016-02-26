@@ -45,6 +45,16 @@ describe("basic", () => {
     });
 
 
+    it("should pass direction to format function aas last arg", () => {
+        const spy = sinon.spy();
+        opts.format = spy;
+        iterator({ ...opts, step: 1 })(data);
+        iterator({ ...opts, step: -1 })(data);
+        assert.deepEqual(spy.firstCall.args[2], { forward: true });
+        assert.deepEqual(spy.secondCall.args[2], { forward: false });
+    });
+
+
     describe("overflow", () => {
         it("should not overflow limits by default", () => {
             data.val = data.max;
