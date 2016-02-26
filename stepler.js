@@ -148,16 +148,22 @@ const paired = factory => {
             throw new Error("[stepler] It's not allowed to use at the same time options 'overflow' and 'overflowBackward' / 'overflowForward'");
         }
 
+        if (has(options, "format") && (has(options, "formatForward") || has(options, "formatBackward"))) {
+            throw new Error("[stepler] It's not allowed to use at the same time options 'format' and 'formatBackward' / 'formatForward'");
+        }
+
         return {
             prev: factory({
                 ...options,
                 step: negate(step),
-                overflow: options.overflowBackward || options.overflow
+                overflow: options.overflowBackward || options.overflow,
+                format: options.formatBackward || options.format
             }),
             next: factory({
                 ...options,
                 step: step,
-                overflow: options.overflowForward || options.overflow
+                overflow: options.overflowForward || options.overflow,
+                format: options.formatForward || options.format
             })
         }
     };

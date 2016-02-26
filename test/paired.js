@@ -1,4 +1,5 @@
 import { assert } from "chai";
+import sinon from "sinon";
 
 import iterator from "../stepler";
 
@@ -57,6 +58,36 @@ describe("pairs", () => {
         const data = { min: 0, max: 3 };
         assert.strictEqual(it.next({ ...data, val: data.max }), data.min);
         assert.strictEqual(it.prev({ ...data, val: data.min }), data.min);
+    });
+
+    it("should deny to set 'format' and 'formatForward/Backward' options simultaneously", () => {
+        const fn = () => iterator.pair({
+            val: ({ val }) => val,
+            min: ({ min }) => min,
+            max: ({ max }) => max,
+            format: () => {},
+            formatForward: () => {}
+        });
+
+        assert.throws(fn, /at the same time/);
+    });
+
+    it("should use 'formatForward' and 'formatBackward' option", () => {
+        const formatForward = sinon.spy();
+        const formatBackward = sinon.spy();
+
+        const it = iterator.pair({
+            val: ({ val }) => val,
+            min: ({ min }) => min,
+            max: ({ max }) => max,
+            formatForward,
+            formatBackward
+        });
+        const data = { val: 0, min: 0, max: 3 };
+        it.next(data);
+        it.prev(data);
+        assert.deepEqual(formatForward.firstCall.args[2], { forward: true });
+        assert.deepEqual(formatBackward.firstCall.args[2], { forward: false });
     });
 
     it("should use 'step' option for both directions", () => {
