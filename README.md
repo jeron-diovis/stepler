@@ -33,6 +33,21 @@ const next = stepler(opts);
 next(data) // => 3
 ```
 
+#### Formatting
+
+```js
+const data = { value: 2, min: 0, max: 3, labels: [ "a", "b", "c", "d" ] }
+const opts = {
+  val: ({ value }) => value,
+  max: ({ max }) => max,
+  format: (idx, { labels }) => labels[idx] 
+});
+
+const next = stepler(opts);
+next(data) // => "d"
+```
+
+
 #### Overflow
 By default, if new value will overflow defined bounds, an old value will be returned:
 ```js
@@ -61,23 +76,12 @@ opts.overflow = function(overflowingValue, data, { val, min, max, forward }) {
 };
 ```
 
+**N.B.** Using function for `overflow` will disable formatting. I.e. value returned from overflow function will be returned as-is from iterator function.
+It is assumed that when you need custom logic for handling overflow – it's a kind of exception, so normal flow should be interrupted.
+
 **NOTE**, that with `OVERFLOW_LOOP` it returns `0`, not `1` (as you might thought, i.e. "current + step - max"). 
 With this option it does not calculate remainder and does not take care about step size.
 Just *"if new value exceeds limit, start from the opposite end"*.
-
-#### Formatting
-
-```js
-const data = { value: 2, min: 0, max: 3, labels: [ "a", "b", "c", "d" ] }
-const opts = {
-  val: ({ value }) => value,
-  max: ({ max }) => max,
-  format: (idx, { labels }) => labels[idx] 
-});
-
-const next = stepler(opts);
-next(data) // => "d"
-```
 
 ## Lists
 
@@ -125,10 +129,13 @@ letters.next(data) // => "d"
 letters.prev(data) // => "b"
 
 // there are separate options to handle overflow for paired iterator:
-letters = stepler.list.pair({...opts, owerflowForward: stepler.OVERFLOW_LOOP, overflowBackward: stepler.OVERFLOW_STOP });
+letters = stepler.list.pair({...opts, overflowForward: stepler.OVERFLOW_LOOP, overflowBackward: stepler.OVERFLOW_STOP });
 letters.next({...data, value: "d" }) // => "a"
 letters.prev({...data, value: "a" }) // => "a"
 ```
+
+If a single `overflow` option is defined, it will be used for both direction. Combining `overflow` and `overflowForward` / `overflowBackward` is not allowed. 
+ 
 Negative step size is denied for paired iterators, to be sure that `next` goes forward and `prev` goes backward.
 
 

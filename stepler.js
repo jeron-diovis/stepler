@@ -39,6 +39,7 @@ function findIndex(val, list, criteria) {
 const getStep = (options, ...args) => resolveOptional(1, options, "step",...args);
 const getList = (options, ...args) => resolveRequired(options, "list",...args);
 const getVal = (options, ...args) => resolveRequired(options, "val",...args);
+const formatResult = (val, options, ...args) => resolveOptional(val, options, "format", val, ...args);
 
 // -----------
 
@@ -65,19 +66,12 @@ const handleOverflow = (opt, next, val, forward, min, max, data) => {
 
 // -----------
 
-const formatter = (options, fn) => data => {
-    const res = fn(data);
-    return options.format ? options.format(res, data) : res;
-};
-
-// -----------
-
 const iterator = options => {
     options = { ...options }; // clone
 
     const { overflow = OVERFLOW_STOP } = options;
 
-    return formatter(options, data => {
+    return data => {
         const step = getStep(options, data);
         const val = getVal(options, data);
         const max = resolveRequired(options, "max", data);
@@ -85,11 +79,23 @@ const iterator = options => {
         const forward = step > 0;
         const next = val + step;
         const isOverflow = forward ? (next > max) : (next < min);
-        return !isOverflow ? next : handleOverflow(overflow, next, val, forward, min, max, data);
-    });
+
+        // Consider calling overflow function as a kind of exception - don't apply formatting.
+        if (isOverflow && typeof overflow === "function") {
+            return overflow(next, data, { forward, max, min, val });
+        }
+
+        return formatResult(
+            !isOverflow ? next : handleOverflow(overflow, next, val, forward, min, max, data),
+            options, data
+        );
+    };
 };
 
 iterator.list = options => {
+    const { overflow } = options;
+    let hasOverflow = false;
+
     const next = iterator({
         ...options,
         min: 0,
@@ -100,6 +106,12 @@ iterator.list = options => {
           options.match
         ),
         format: null, // don't format intermediate value (i.e. index)
+        overflow: typeof overflow !== "function"
+            ? overflow
+            : (...args) => {
+                hasOverflow = true;
+                return overflow(...args);
+            },
         step: (...args) => {
             const step = getStep(options, ...args);
             if (Math.round(step) !== step) {
@@ -108,7 +120,16 @@ iterator.list = options => {
             return step;
         }
     });
-    return formatter(options, data => getList(options, data)[next(data)]);
+
+    return data => {
+        hasOverflow = false;
+
+        const nextIdx = next(data);
+        const list = getList(options, data);
+        const nextItem = list[nextIdx];
+
+        return hasOverflow ? nextItem : formatResult(nextItem, options, data);
+    };
 };
 
 // -----------

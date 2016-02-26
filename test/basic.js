@@ -102,6 +102,18 @@ describe("basic", () => {
             });
         });
 
+        it("should NOT apply 'format' to overflowing result if 'overflow' is a function", () => {
+            const overflowingResult = {};
+            const overflowHandler = sinon.spy(() => overflowingResult);
+            const formatHandler = sinon.spy();
+
+            data.val = data.max;
+            const res = iterator({ ...opts, overflow: overflowHandler, format: formatHandler })(data);
+
+            assert.isFalse(formatHandler.called);
+            assert.equal(res, overflowingResult);
+        });
+
         it("should throw", () => {
             data.val = data.max;
             opts.overflow = "invalid";
